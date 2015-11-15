@@ -7,5 +7,7 @@ void read_input(char* filename) {
 	}
 
 
-	fclose(input);
+	if (fclose(input) == EOF) {
+		exit(INPUT_FILE_FAILED_TO_CLOSE);
+	}
 }
