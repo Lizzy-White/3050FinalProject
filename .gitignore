@@ -1,6 +1,10 @@
 /FinalProject/nbproject/
 
+# Vim
+*.swp
+
 # Object files
+maze_solver
 *.o
 *.ko
 *.obj
