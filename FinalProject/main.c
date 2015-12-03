@@ -30,26 +30,26 @@ typedef struct GraphNode
     bool wall;
     int iPos;
     int jPos;
-    
 } Node;
 
-typedef struct heap {
-    int* A;
+typedef struct NodeHeap {
+    Node* A;
     int size;
-} heap_t;
+} node_t;
 
 
 /*
  * 
  */
-void init_heap(heap_t* heap);
-void swap(int* x, int* y);
-void min_heapify(heap_t* heap, int i, int n);
-void build_min_heap(heap_t* heap, int n);
-void insert(heap_t* heap, int x);
-int extract_min(heap_t* heap);
-void decrease_key(heap_t* heap, int i, int key);
-void print_array(heap_t heap);
+void AddNode(Node** list, Node node, int* size);
+void init_heap(node_t* heap);
+void swap(Node* x, Node* y);
+void min_heapify(node_t* heap, int i, int n);
+void build_min_heap(node_t* heap, int n);
+void insert(node_t* heap, Node x);
+Node extract_min(node_t* heap);
+void decrease_key(node_t* heap, int i, Node key);
+void print_array(node_t heap);
 
 void SetFCost(Node* curr, Node start, Node end);
 Node** GetNeighbours(Node curr, Node** nodeArray, int nodeArraySize, int* neighbourSize);
@@ -68,6 +68,7 @@ int main(int argc, char** argv) {
     int size = 6;
     Node** nodeArray;
     Node startingNode;
+    startingNode.FCost = 0;
     Node endingNode;
     
     GetStartingAndEndingNode(&startingNode, &endingNode, size);
@@ -76,35 +77,28 @@ int main(int argc, char** argv) {
     PrintMaze(nodeArray, size, startingNode, endingNode);
     
     int openSize = 0, closedSize = 0;
-    heap_t openList;
-    Node* closedList;
+    node_t openList;
+    Node* closedList = (Node*) malloc(sizeof(Node));
+    //memset(closedList, 0, sizeof(Node));
     Node curr = startingNode;
-    //AddToList(&openList, curr, &openSize);
+    
     init_heap(&openList);
-    insert(&openList, 16);
-    insert(&openList, 14);
-    insert(&openList, 10);
-    insert(&openList, 8);
-    insert(&openList, 7);
-    insert(&openList, 9);
-    insert(&openList, 3);
-    insert(&openList, 2);
-    insert(&openList, 4);
-    insert(&openList, 1);
-    //extract_min(&openList);
-    build_min_heap(&openList, openList.size);
-    print_array(openList);
+    insert(&openList, curr);
+
+    //print_array(openList);
     
     int neighbourSize=0;
     //Node* list = GetNeighbours(curr, nodeArray, size, &neighbourSize);
     //PrintList(neighbourSize, GetNeighbours(curr, nodeArray, size, &neighbourSize));
-    if(true){
+
     int Buffer = 1, buff;
     for(buff = 0; buff<Buffer; buff++)//Should continue until every node is closed or until found
     {
-        //curr = GetLowestFCost(openList);
-        //removeNode(openList, curr);
-        //addNode(closedList, curr);
+        curr = extract_min(&openList);
+        AddNode(&closedList, curr, &closedSize);
+        //printf("%d %d %d \n", curr.jPos, curr.iPos, curr.closed);
+        //curr.closed = true;
+        //printf("%d %d %d \n\n", nodeArray[curr.jPos][curr.iPos].jPos, nodeArray[curr.jPos][curr.iPos].iPos, nodeArray[curr.jPos][curr.iPos].closed);
         if(CompareNode(curr, endingNode))
         {
             buff = Buffer+1;
@@ -127,7 +121,6 @@ int main(int argc, char** argv) {
         }
         
     }
-    }
     
     
     
@@ -136,26 +129,33 @@ int main(int argc, char** argv) {
     return (EXIT_SUCCESS);
 }
 
-void init_heap(heap_t* heap) {
-    memset(heap, 0, sizeof(heap_t));
+void AddNode(Node** list, Node node, int* size)
+{
+    if(*size > 0)
+        *list = realloc(*list, sizeof(Node)*(*size+1));
+    *list[*size++] = node;
 }
 
-void swap(int* x, int* y) {
-    int temp;
+void init_heap(node_t* heap) {
+    memset(heap, 0, sizeof(node_t));
+}
+
+void swap(Node* x, Node* y) {
+    Node temp;
     temp = *x;
     *x = *y;
     *y = temp;
 }
 
-void min_heapify(heap_t* heap, int i, int n) {
+void min_heapify(node_t* heap, int i, int n) {
     int l, r, min;
     l = LEFT(i);
     r = RIGHT(i);
-    if (l < n && heap->A[l] < heap->A[i])
+    if (l < n && heap->A[l].FCost < heap->A[i].FCost)
             min = l;
     else
             min = i;
-    if (r < n && heap->A[r] < heap->A[min])
+    if (r < n && heap->A[r].FCost < heap->A[min].FCost)
             min = r;
     if (min != i) {
             swap(&heap->A[i], &heap->A[min]);
@@ -163,49 +163,55 @@ void min_heapify(heap_t* heap, int i, int n) {
     }
 }
 
-void build_min_heap(heap_t* heap, int n) {
+void build_min_heap(node_t* heap, int n) {
     int i;
     for (i = n/2; i >= 0; i--)
             min_heapify(heap, i, n);
 }
 
-void insert(heap_t* heap, int x) {
-    heap->A = realloc(heap->A, sizeof(int)*(heap->size + 1));
-    heap->A[heap->size] = INT_MAX;
+void insert(node_t* heap, Node x) {
+    heap->A = (Node*) realloc(heap->A, sizeof(Node)*(heap->size + 1));
+    heap->A[heap->size] = x;
     decrease_key(heap, heap->size++, x);
 }
 
-int extract_min(heap_t* heap) {
+Node extract_min(node_t* heap) {
     if (heap->size < 1) {
         printf("\nError.  Heap underflow.\n");
         exit(15);
     }
-    int min = heap->A[0];
+    Node min = heap->A[0];
     heap->A[0] = heap->A[heap->size - 1];
     heap->size--;
     min_heapify(heap, 0, heap->size);
     return min;
 }
 
-void decrease_key(heap_t* heap, int i, int key) {
-    if (key > heap->A[i]) {
+void decrease_key(node_t* heap, int i, Node key) {
+    if (key.FCost > heap->A[i].FCost) {
         printf("\nError.  New key is larger than current key.\n");
         return;
     }
 
     heap->A[i] = key;
-    while (i > 0 && heap->A[PARENT(i)] > heap->A[i]) {
+    while (i > 0 && heap->A[PARENT(i)].FCost > heap->A[i].FCost) {
         swap(&heap->A[i], &heap->A[PARENT(i)]);
         i = PARENT(i);
     }	
 }
 
-void print_array(heap_t heap) {
+void print_array(node_t heap) {
     int i;
     printf("\n\n");
     for (i = 0; i < heap.size; i++)
     {
-        printf("%d ", heap.A[i]);
+        if(heap.A[i].FCost < 0)
+        {
+            printf("noFCost ");
+        } else
+        {
+            printf("%d ", heap.A[i].FCost);
+        }
     }
 }
 
