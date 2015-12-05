@@ -33,7 +33,7 @@ typedef struct GraphNode
 } Node;
 
 typedef struct NodeHeap {
-    Node* A;
+    Node** A;
     int size;
 } node_t;
 
@@ -41,19 +41,19 @@ typedef struct NodeHeap {
 /*
  * 
  */
-void AddNode(Node** list, Node node, int* size);
+void AddNode(Node** list, Node* node, int* size);
 void init_heap(node_t* heap);
 void swap(Node* x, Node* y);
 void min_heapify(node_t* heap, int i, int n);
 void build_min_heap(node_t* heap, int n);
-void insert(node_t* heap, Node x);
-Node extract_min(node_t* heap);
-void decrease_key(node_t* heap, int i, Node key);
+void insert(node_t* heap, Node* x);
+Node* extract_min(node_t* heap);
+void decrease_key(node_t* heap, int i, Node* key);
 void print_array(node_t heap);
 
 void SetFCost(Node* curr, Node start, Node end);
-Node** GetNeighbours(Node curr, Node** nodeArray, int nodeArraySize, int* neighbourSize);
-void MallocNode(Node*** node, int* size);
+Node** GetNeighbours(Node* curr, Node** nodeArray, int nodeArraySize, int* neighbourSize);
+void MallocNode(Node*** node, int size);
 bool CompareNode(Node one, Node two);
 void AddToList(Node** nodeList, Node addedNode, int *size);
 void PrintList(int size, Node* nodeList);
@@ -80,34 +80,40 @@ int main(int argc, char** argv) {
     node_t openList;
     Node* closedList = (Node*) malloc(sizeof(Node));
     //memset(closedList, 0, sizeof(Node));
-    Node curr = startingNode;
+    Node* curr = &nodeArray[startingNode.jPos][startingNode.iPos];
     
     init_heap(&openList);
     insert(&openList, curr);
 
     //print_array(openList);
     
-    int neighbourSize=0;
     //Node* list = GetNeighbours(curr, nodeArray, size, &neighbourSize);
     //PrintList(neighbourSize, GetNeighbours(curr, nodeArray, size, &neighbourSize));
 
-    int Buffer = 1, buff;
+    int Buffer = 3, buff;
     for(buff = 0; buff<Buffer; buff++)//Should continue until every node is closed or until found
     {
         curr = extract_min(&openList);
         AddNode(&closedList, curr, &closedSize);
-        //printf("%d %d %d \n", curr.jPos, curr.iPos, curr.closed);
-        //curr.closed = true;
-        //printf("%d %d %d \n\n", nodeArray[curr.jPos][curr.iPos].jPos, nodeArray[curr.jPos][curr.iPos].iPos, nodeArray[curr.jPos][curr.iPos].closed);
-        if(CompareNode(curr, endingNode))
+        if(CompareNode(*curr, endingNode))
         {
             buff = Buffer+1;
         }
         
+        
+//        printf("%d %d %d \n", curr->jPos, curr->iPos, curr->closed);
+//        curr->closed = true;
+//        printf("%d %d %d \n\n", nodeArray[curr->jPos][curr->iPos].jPos, nodeArray[curr->jPos][curr->iPos].iPos, nodeArray[curr->jPos][curr->iPos].closed);
+        if(true){
+            
+        int neighbourSize=0;
         Node** neighbours = GetNeighbours(curr, nodeArray, size, &neighbourSize);
         int i;
+            printf("Size: %d\n", neighbourSize);
         for(i = 0; i<neighbourSize; i++)
         {
+            printf("%d %d \n", neighbours[i]->jPos, neighbours[i]->iPos);
+            insert(&openList, neighbours[i]);
             //if(!neighbours[i].closed && (!neighbours[i].open || neighbours[i].FCost < curr.FCost))  //TODO: Revisit.  Fcost is iffy
             {
                 //SetFCost(&(neighbours[i]), startingNode, endingNode);
@@ -119,6 +125,8 @@ int main(int argc, char** argv) {
                 }
             }
         }
+        printf("--------\n");
+        }
         
     }
     
@@ -129,11 +137,11 @@ int main(int argc, char** argv) {
     return (EXIT_SUCCESS);
 }
 
-void AddNode(Node** list, Node node, int* size)
+void AddNode(Node** list, Node* node, int* size)
 {
     if(*size > 0)
         *list = realloc(*list, sizeof(Node)*(*size+1));
-    *list[*size++] = node;
+    list[*size++] = node;
 }
 
 void init_heap(node_t* heap) {
@@ -141,24 +149,24 @@ void init_heap(node_t* heap) {
 }
 
 void swap(Node* x, Node* y) {
-    Node temp;
-    temp = *x;
-    *x = *y;
-    *y = temp;
+    Node* temp;
+    temp = x;
+    x = y;
+    y = temp;
 }
 
 void min_heapify(node_t* heap, int i, int n) {
     int l, r, min;
     l = LEFT(i);
     r = RIGHT(i);
-    if (l < n && heap->A[l].FCost < heap->A[i].FCost)
+    if (l < n && (*(heap->A[l])).FCost < (*(heap->A[i])).FCost)
             min = l;
     else
             min = i;
-    if (r < n && heap->A[r].FCost < heap->A[min].FCost)
+    if (r < n && (*(heap->A[r])).FCost < (*(heap->A[min])).FCost)
             min = r;
     if (min != i) {
-            swap(&heap->A[i], &heap->A[min]);
+            swap(heap->A[i], heap->A[min]);
             min_heapify(heap, min, n);
     }
 }
@@ -169,33 +177,33 @@ void build_min_heap(node_t* heap, int n) {
             min_heapify(heap, i, n);
 }
 
-void insert(node_t* heap, Node x) {
-    heap->A = (Node*) realloc(heap->A, sizeof(Node)*(heap->size + 1));
+void insert(node_t* heap, Node* x) {
+    heap->A = (Node**) realloc(heap->A, sizeof(Node*)*(heap->size + 1));
     heap->A[heap->size] = x;
     decrease_key(heap, heap->size++, x);
 }
 
-Node extract_min(node_t* heap) {
+Node* extract_min(node_t* heap) {
     if (heap->size < 1) {
         printf("\nError.  Heap underflow.\n");
         exit(15);
     }
-    Node min = heap->A[0];
+    Node* min = heap->A[0];
     heap->A[0] = heap->A[heap->size - 1];
     heap->size--;
     min_heapify(heap, 0, heap->size);
     return min;
 }
 
-void decrease_key(node_t* heap, int i, Node key) {
-    if (key.FCost > heap->A[i].FCost) {
+void decrease_key(node_t* heap, int i, Node* key) {
+    if (key->FCost > (*(heap->A[i])).FCost) {
         printf("\nError.  New key is larger than current key.\n");
         return;
     }
 
     heap->A[i] = key;
-    while (i > 0 && heap->A[PARENT(i)].FCost > heap->A[i].FCost) {
-        swap(&heap->A[i], &heap->A[PARENT(i)]);
+    while (i > 0 && (*(heap->A[PARENT(i)])).FCost > (*(heap->A[i])).FCost) {
+        swap(heap->A[i], heap->A[PARENT(i)]);
         i = PARENT(i);
     }	
 }
@@ -205,12 +213,12 @@ void print_array(node_t heap) {
     printf("\n\n");
     for (i = 0; i < heap.size; i++)
     {
-        if(heap.A[i].FCost < 0)
+        if((*(heap.A[i])).FCost < 0)
         {
             printf("noFCost ");
         } else
         {
-            printf("%d ", heap.A[i].FCost);
+            printf("%d ", (*(heap.A[i])).FCost);
         }
     }
 }
@@ -223,68 +231,78 @@ void SetFCost(Node* curr, Node start, Node end)
 }
 
 //Goes clockwise. Starting from the node above
-Node** GetNeighbours(Node curr, Node** nodeArray, int nodeArraySize, int* neighbourSize)
+Node** GetNeighbours(Node* curr, Node** nodeArray, int nodeArraySize, int* neighbourSize)
 {
     Node** temp;
-    (*neighbourSize) = 0;
-    if(curr.jPos-1 >= 0)
+    if(curr->jPos-1 >= 0)
     {
-        if(!nodeArray[curr.jPos-1][curr.iPos].wall)
+        if(!nodeArray[curr->jPos-1][curr->iPos].wall)
         {
-            nodeArray[curr.jPos-1][curr.iPos].Parent = &curr;
-            MallocNode(&temp, neighbourSize);
-            temp[(*neighbourSize)-1] = &nodeArray[curr.jPos-1][curr.iPos];
+            nodeArray[curr->jPos-1][curr->iPos].Parent = (struct GraphNode*)malloc(sizeof(struct GraphNode));
+            nodeArray[curr->jPos-1][curr->iPos].Parent = curr;
+            MallocNode(&temp, *neighbourSize);
             (*neighbourSize)++;
+            temp[(*neighbourSize)-1] = &nodeArray[curr->jPos-1][curr->iPos];
         }
     }
-    if(curr.iPos+1 < nodeArraySize)
+    if(curr->iPos+1 < nodeArraySize)
     {
-        if(!nodeArray[curr.jPos][curr.iPos+1].wall)
+        if(!nodeArray[curr->jPos][curr->iPos+1].wall)
         {
-            nodeArray[curr.jPos][curr.iPos+1].Parent = &curr;
-            MallocNode(&temp, neighbourSize);
-            temp[(*neighbourSize)-1] = &nodeArray[curr.jPos][curr.iPos+1];
+            nodeArray[curr->jPos][curr->iPos+1].Parent = (struct GraphNode*)malloc(sizeof(struct GraphNode));
+            nodeArray[curr->jPos][curr->iPos+1].Parent = curr;
+            MallocNode(&temp, *neighbourSize);
             (*neighbourSize)++;
+            temp[(*neighbourSize)-1] = &nodeArray[curr->jPos][curr->iPos+1];
         }
     }
-    if(curr.jPos+1 < nodeArraySize)
+    if(curr->jPos+1 < nodeArraySize)
     {
-        if(!nodeArray[curr.jPos+1][curr.iPos].wall)
+        if(!nodeArray[curr->jPos+1][curr->iPos].wall)
         {
-            nodeArray[curr.jPos+1][curr.iPos].Parent = &curr;
-            MallocNode(&temp, neighbourSize);
-            temp[(*neighbourSize)-1] = &nodeArray[curr.jPos+1][curr.iPos];
+            nodeArray[curr->jPos+1][curr->iPos].Parent = (struct GraphNode*)malloc(sizeof(struct GraphNode));
+            nodeArray[curr->jPos+1][curr->iPos].Parent = curr;
+            MallocNode(&temp, *neighbourSize);
             (*neighbourSize)++;
+            temp[(*neighbourSize)-1] = &nodeArray[curr->jPos+1][curr->iPos];
         }
     }
-    if(curr.iPos-1 >= 0)
+    if(curr->iPos-1 >= 0)
     {
-        if(!nodeArray[curr.jPos][curr.iPos-1].wall)
+        if(!nodeArray[curr->jPos][curr->iPos-1].wall)
         {
-            nodeArray[curr.jPos][curr.iPos-1].Parent = &curr;
-            MallocNode(&temp, neighbourSize);
-            temp[(*neighbourSize)-1] = &nodeArray[curr.jPos][curr.iPos-1];
+            nodeArray[curr->jPos][curr->iPos-1].Parent = (struct GraphNode*)malloc(sizeof(struct GraphNode));
+            nodeArray[curr->jPos][curr->iPos-1].Parent = curr;
+            
+        printf("KK:%d\n",*neighbourSize);
+            MallocNode(&temp, *neighbourSize);
+        printf("kk:  %d\n",*neighbourSize);
             (*neighbourSize)++;
+        printf("k: %d\n",*neighbourSize);
+            temp[(*neighbourSize)-1] = &nodeArray[curr->jPos][curr->iPos-1];
         }
     }
     
     return temp;
 }
 
-void MallocNode(Node*** node, int* size)
-{
-    if((*size) >= 0)
+void MallocNode(Node*** node, int size)
+{   //printf("starting: %d  ", *size);
+    if((size) >= 0)
     {
-        if((*size) == 0)
+        if((size) == 0)
         {
-            (*node) = (Node**) malloc(sizeof(Node*));
-            (**node) = (Node*) malloc(sizeof(Node));
-        } else if ((*size) > 0)
+            *node = (Node**) malloc(sizeof(Node*));
+            *(node)[0] = (Node*) malloc(sizeof(Node));
+        } else
         {
-            (*node) = (Node**) realloc((*node), sizeof(Node*) * ((*size)+1));
-            (**node) = (Node*) malloc(sizeof(Node));
+            *node = (Node**) realloc((*node), sizeof(Node*) * ((size)+1));
+            //printf("starting: %d  ", *size);
+            *(node)[(size)] = (Node*) malloc(sizeof(Node));
+            //printf("starting: %d  ", *size);
         }
-        (*size)++;
+        //printf("si: %d\n", *size);
+        //(*size)++;
     } else
     {
         printf("ERROR: Size is negative");
