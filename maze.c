@@ -13,8 +13,11 @@ void print_maze(maze_t maze) {
  * COLOR TESTING
  * 			if (isalpha(maze.labyrinth[i][j]))
 				printf(YEL "%c", maze.labyrinth[i][j]);
+			
+*/			if (maze.labyrinth[i][j].on_path)
+				printf(BLU "*");
 			else
-*/				printf(NRM "%c", maze.labyrinth[i][j]);
+				printf(NRM "%c", maze.labyrinth[i][j].object);
 		}
 	}
 	printf("\n");

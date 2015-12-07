@@ -1,3 +1,6 @@
+#ifndef H_HEAP_H
+#define H_HEAP_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,10 +19,11 @@
  * 		f_cost - g_cost + h_cost
  * 		i_pos - row of this node's locations
  * 		j_pos - column of this node's location
+ * 		object - visual representation of the maze spot
  * 		parent - ??????????????????????????????????????????????????????
  * 		open - states whether the node is in the open list
  * 		closed - states whether the node is in the closed list
- * 		wall - ????????????????????????????????????????????
+ * 		wall - states whether or not the node is a wall
  */
 typedef struct node {
 	int g_cost;
@@ -27,10 +31,12 @@ typedef struct node {
 	int f_cost;
 	int i_pos;
 	int j_pos;
+	char object;
 	struct node* parent;
 	bool open;
 	bool closed;
 	bool wall;
+	bool on_path;
 } node_t;
 
 /*
@@ -39,7 +45,7 @@ typedef struct node {
  * 		size - number of elements in the heap
  */
 typedef struct heap {
-	int* A;
+	node_t* A;
 	int size;
 } heap_t;
 
@@ -55,7 +61,7 @@ void init_heap(heap_t* heap);
  * Swaps two elements.
  * O(1)
  */
-void swap(int* x, int* y);
+void swap(node_t* x, node_t* y);
 
 /* Traverse the heap, making the subtree with root heap->A[i] a heap if 
  * and only if the subtrees rooted at both heap->A[LEFT(i)] and 
@@ -90,26 +96,26 @@ int kth_smallest(heap_t* heap, int k, int n);
  * Inserts the key x into the heap.
  * O(log(n))
  */
-void insert(heap_t* heap, int x);
+void insert(heap_t* heap, node_t x);
 
 /*
  * Returns the element at heap->A[0]
  * O(1)
  */
-int minimum(heap_t* heap);
+node_t minimum(heap_t* heap);
 
 /*
  * Returns and removes the element at heap->A[0], restoring heap properties
  * after deletion
  * O(log(n))
  */
-int extract_min(heap_t* heap);
+node_t extract_min(heap_t* heap);
 
 /*
  * Decreases the value of element i to key
  * O(log(n))
  */
-void decrease_key(heap_t* heap, int i, int key);
+void decrease_key(heap_t* heap, int i, node_t key);
 
 /*
  * Prints the heap in index order
@@ -122,3 +128,5 @@ void print_array(heap_t heap);
  * O(1)
  */
 void uninit_heap(heap_t* heap);
+
+#endif

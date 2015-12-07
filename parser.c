@@ -1,6 +1,5 @@
 #include "parser.h"
 
-
 void read_input(char* filename, maze_t* maze, robot_t* bots) {
 	FILE* input = fopen(filename, "r");
 	if (!input) {
@@ -15,10 +14,10 @@ void read_input(char* filename, maze_t* maze, robot_t* bots) {
 }
 
 maze_t* parse(FILE* input, maze_t* maze, robot_t* bots) {	
-	maze->labyrinth = malloc(sizeof(char*));
+	maze->labyrinth = malloc(sizeof(node_t*));
 	
 	char c;
-	int curr_col;
+	int curr_col, i;
 	bool newline = false;
 	curr_col = 0;
 	maze->num_cols = get_num_columns(input);
@@ -27,18 +26,23 @@ maze_t* parse(FILE* input, maze_t* maze, robot_t* bots) {
 
 	while ((c = getc(input)) != EOF) {
 		if (c == '\n') {
+			if (curr_col + 1 < maze->num_cols) 
+				for (i = curr_col + 1; i < maze->num_cols; i++)
+					maze->labyrinth[maze->num_rows][i].object = ' ';
 			newline = true;
 			continue;
 		}
 		else if (newline) {
 			maze->num_rows++;
-			curr_col = -1;
-			maze->labyrinth = realloc(maze->labyrinth, sizeof(char*)*(maze->num_rows + 1));
+			curr_col = 0;
+			maze->labyrinth = realloc(maze->labyrinth, sizeof(node_t*)*(maze->num_rows + 1));
 			maze->labyrinth[maze->num_rows] = alloc_and_set(maze->labyrinth[maze->num_rows], maze->num_cols);
 			newline = false;
 		}
-		else if (c == '#' || c == ' ') { 
-			maze->labyrinth[maze->num_rows][curr_col] = c;
+		if (c == '#' || c == ' ') { 
+			if (c == '#')
+				maze->labyrinth[maze->num_rows][curr_col].wall = true;
+			maze->labyrinth[maze->num_rows][curr_col].object = c;
 		}
 		else if (isalpha(c)) {
 			if (c == 'S') 
@@ -52,23 +56,28 @@ maze_t* parse(FILE* input, maze_t* maze, robot_t* bots) {
 			else{
 				quit(INVALID_CHARACTER_ENCOUNTERED, maze, input);
 			}
-			maze->labyrinth[maze->num_rows][curr_col] = c;
+			maze->labyrinth[maze->num_rows][curr_col].object = c;
 		}
 		else if (c == '\r') {
+			newline = true;
 			continue;
 		}
 		else {
 			quit(INVALID_CHARACTER_ENCOUNTERED, maze, input);
 		}
-		curr_col++;	
+		if (curr_col != -1) {
+			maze->labyrinth[maze->num_rows][curr_col].i_pos = maze->num_rows;
+			maze->labyrinth[maze->num_rows][curr_col].j_pos = curr_col;
+		}
+		curr_col++;
 	}
 	maze->num_rows++;
 	return maze;
 }
 
-char* alloc_and_set(char* maze_row, int n) {
-	maze_row = malloc(sizeof(char)*n);
-	memset(maze_row, ' ', sizeof(char)*n);
+node_t* alloc_and_set(node_t* maze_row, int n) {
+	maze_row = malloc(sizeof(node_t)*n);
+	memset(maze_row, 0, sizeof(node_t)*n);
 	return maze_row;
 }
 
@@ -78,7 +87,7 @@ int get_num_columns(FILE* input) {
 	n = max = 0;
 	
 	while ((c = getc(input)) != EOF) {
-		if (c == '\n') {
+		if (c == '\n' || c == '\r') {
 			if (n > max)
 				max = n;
 			n = 0;

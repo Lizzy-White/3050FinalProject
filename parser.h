@@ -9,6 +9,7 @@
 #include "errors.h"
 #include "maze.h"
 #include "robot.h"
+#include "heap.h"
 
 /*
  * Reads in the input file, invoking parse() to parse the data accordingly.
@@ -27,7 +28,7 @@ maze_t* parse(FILE* input, maze_t* maze, robot_t* bots);
  * Allocates memory for a row.
  * Sets all elements to a whitespace.
  */
-char* alloc_and_set(char* maze_row, int n);
+node_t* alloc_and_set(node_t* maze_row, int n);
 
 /*
  * Traverses through each line of the file, finding the longest one.

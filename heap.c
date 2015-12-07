@@ -7,9 +7,9 @@ void init_heap(heap_t* heap) {
 
 void swap(node_t* x, node_t* y) {
 	node_t* temp;
-	temp = *x;
-	*x = *y;
-	*y = temp;
+	temp = x;
+	x = y;
+	y = temp;
 }
 
 void min_heapify(heap_t* heap, int i, int n) {
@@ -43,30 +43,30 @@ void heapsort(heap_t* heap, int n) {
 	}
 }
 
-void insert(heap_t* heap, node_t* x) {
+void insert(heap_t* heap, node_t x) {
 	heap->A = realloc(heap->A, sizeof(node_t)*(heap->size + 1));
-	heap->A[heap->size] = INT_MAX;
+	heap->A[heap->size].f_cost = INT_MAX;
 	decrease_key(heap, heap->size++, x);
 }
 
-int minimum(heap_t* heap) {
+node_t minimum(heap_t* heap) {
 	return heap->A[0];
 }
 
-node_t* extract_min(heap_t* heap) {
+node_t extract_min(heap_t* heap) {
 	if (heap->size < 1) {
 		fprintf(stderr, "\nError.  Heap underflow.\n");
 		exit(HEAP_UNDERFLOW_EXTRACT_MIN);
 	}
-	int min = heap->A[0];
+	node_t min = heap->A[0];
 	heap->A[0] = heap->A[heap->size - 1];
 	heap->size--;
 	min_heapify(heap, 0, heap->size);
 	return min;
 }
 
-void decrease_key(heap_t* heap, int i, node_t* key) {
-	if (key->f_cost > heap->A[i].f_cost) {
+void decrease_key(heap_t* heap, int i, node_t key) {
+	if (key.f_cost > heap->A[i].f_cost) {
 		fprintf(stderr, "\nError.  New key is larger than current key.\n");
 		return;
 	}
@@ -74,7 +74,7 @@ void decrease_key(heap_t* heap, int i, node_t* key) {
 	heap->A[i] = key;
 	
 	while (i > 0 && heap->A[PARENT(i)].f_cost > heap->A[i].f_cost) {
-		swap(heap->A[i], heap->A[PARENT(i)]);
+		swap(&heap->A[i], &heap->A[PARENT(i)]);
 		i = PARENT(i);
 	}	
 }
@@ -83,7 +83,7 @@ void print_array(heap_t heap) {
 	int i;
 	printf("\n\n");
 	for (i = 0; i < heap.size; i++) 
-		printf("%3d", heap.A[i]);
+		printf("%3d", heap.A[i].f_cost);
 }
 
 void uninit_heap(heap_t* heap) {

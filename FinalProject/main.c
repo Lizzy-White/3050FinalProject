@@ -76,7 +76,8 @@ int main(int argc, char** argv) {
     GenerateMap(nodeArray, size);
     PrintMaze(nodeArray, size, startingNode, endingNode);
     
-    int openSize = 0, closedSize = 0;
+  int i;
+  	int openSize = 0, closedSize = 0;
     node_t openList;
     Node* closedList = (Node*) malloc(sizeof(Node));
     //memset(closedList, 0, sizeof(Node));
@@ -89,7 +90,7 @@ int main(int argc, char** argv) {
     
     //Node* list = GetNeighbours(curr, nodeArray, size, &neighbourSize);
     //PrintList(neighbourSize, GetNeighbours(curr, nodeArray, size, &neighbourSize));
-
+Node** neighbours;
     int Buffer = 3, buff;
     for(buff = 0; buff<Buffer; buff++)//Should continue until every node is closed or until found
     {
@@ -107,7 +108,7 @@ int main(int argc, char** argv) {
         if(true){
             
         int neighbourSize=0;
-        Node** neighbours = GetNeighbours(curr, nodeArray, size, &neighbourSize);
+        neighbours = GetNeighbours(curr, nodeArray, size, &neighbourSize);
         int i;
             printf("Size: %d\n", neighbourSize);
         for(i = 0; i<neighbourSize; i++)
@@ -125,12 +126,25 @@ int main(int argc, char** argv) {
                 }
             }
         }
+
+for (i = 0; i < neighbourSize; i++)
+{
+	free(neighbours[i]->Parent);
+	free(neighbours[i]);
+}
+free(neighbours);
         printf("--------\n");
         }
-        
+
     }
-    
-    
+  
+free(closedList);	
+//for (i = 0; i < closedSize; i++)
+//	free(neighbours[i]);
+//free(neighbours);
+for (i = 0; i < size; i++)
+	free(nodeArray[i]);
+free(nodeArray);
     
     
     

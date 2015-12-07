@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include "heap.h"
 
 #define YEL "\x1B[33m"
 #define GRN "\x1B[32m"
@@ -18,7 +19,7 @@
  * 	num_cols: total number of columns in the maze
  */
 typedef struct maze {
-	char** labyrinth;
+	node_t** labyrinth;
 	int num_rows;
 	int num_cols;
 } maze_t;

@@ -2,6 +2,7 @@
 #include "parser.h"
 #include "robot.h"
 #include "errors.h"
+#include "heap.h"
 
 int main(int argc, char** argv) {
 	if (argc != 2) {
