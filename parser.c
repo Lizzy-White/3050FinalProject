@@ -54,6 +54,7 @@ maze_t* parse(FILE* input, maze_t* maze, robot_t* bots) {
 			else if (c == 'L') 
 				set_end(&bots[1], maze->num_rows, curr_col);
 			else{
+//				printf("[%c]", c);
 				quit(INVALID_CHARACTER_ENCOUNTERED, maze, input);
 			}
 			maze->labyrinth[maze->num_rows][curr_col].object = c;
@@ -63,6 +64,7 @@ maze_t* parse(FILE* input, maze_t* maze, robot_t* bots) {
 			continue;
 		}
 		else {
+//			printf("%c", c);
 			quit(INVALID_CHARACTER_ENCOUNTERED, maze, input);
 		}
 		if (curr_col != -1) {

@@ -11,6 +11,21 @@
 #define RIGHT(i) 2*i+2
 #define PARENT(i) (i-1)/2
 #define SIZE 8
+/*
+ * VISIT COLORS:
+ * 		WHITE - not yet visited
+ * 		BLUE - visited and still may be considered
+ *		YELLOW - on the parent path
+ */
+typedef enum visit_colors {
+	WHITE,
+	BLUE,
+	YELLOW,
+	GREEN,
+	PINK,
+	RED,
+	CYAN
+} visit_colors_t;
 
 /*
  * NODE:
@@ -37,6 +52,8 @@ typedef struct node {
 	bool closed;
 	bool wall;
 	bool on_path;
+	bool pause;
+	visit_colors_t visit;
 } node_t;
 
 /*

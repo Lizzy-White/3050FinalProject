@@ -14,16 +14,19 @@ void swap(node_t* x, node_t* y) {
 
 void min_heapify(heap_t* heap, int i, int n) {
 	int l, r, min;
+	node_t temp;
 	l = LEFT(i);
 	r = RIGHT(i);
-	if (l < n && heap->A[l].f_cost < heap->A[i].f_cost)
+	if (l < n && heap->A[l].f_cost <= heap->A[i].f_cost)
 		min = l;
 	else
 		min = i;
 	if (r < n && heap->A[r].f_cost < heap->A[min].f_cost)
 		min = r;
 	if (min != i) {
-		swap(&heap->A[i], &heap->A[min]);
+		temp = heap->A[i];
+		heap->A[i] = heap->A[min];
+		heap->A[min] = temp;
 		min_heapify(heap, min, n);
 	}
 }
@@ -55,8 +58,8 @@ node_t minimum(heap_t* heap) {
 
 node_t extract_min(heap_t* heap) {
 	if (heap->size < 1) {
-		fprintf(stderr, "\nError.  Heap underflow.\n");
-		exit(HEAP_UNDERFLOW_EXTRACT_MIN);
+		fprintf(stderr, "\nError.  Robot is unable to reach the end of the maze.\n");
+		exit(ROBOT_UNABLE_TO_REACH_END_OF_MAZE);
 	}
 	node_t min = heap->A[0];
 	heap->A[0] = heap->A[heap->size - 1];
@@ -70,11 +73,14 @@ void decrease_key(heap_t* heap, int i, node_t key) {
 		fprintf(stderr, "\nError.  New key is larger than current key.\n");
 		return;
 	}
-	
+
+	node_t temp;	
 	heap->A[i] = key;
 	
 	while (i > 0 && heap->A[PARENT(i)].f_cost > heap->A[i].f_cost) {
-		swap(&heap->A[i], &heap->A[PARENT(i)]);
+		temp = heap->A[i];
+		heap->A[i] = heap->A[PARENT(i)];
+		heap->A[PARENT(i)] = temp;		
 		i = PARENT(i);
 	}	
 }

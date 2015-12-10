@@ -11,7 +11,9 @@
 #define GRN "\x1B[32m"
 #define BLU "\x1B[34m"
 #define NRM "\x1B[0m"
-
+#define PNK "\x1B[35m"
+#define KRED "\x1B[31m"
+#define CYN "\x1B[36m"
 /*
  * MAZE:
  * 	labyrinth: 2-D array containing the visual maze
@@ -32,7 +34,7 @@ void init_maze(maze_t* maze);
 /*
  * Prints the maze.
  */
-void print_maze(maze_t maze);
+void print_maze(maze_t* maze);
 
 /*
  * Frees all memory allocated in the maze.
