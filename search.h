@@ -27,7 +27,7 @@ void a_star(maze_t* maze, node_t* starting_node, node_t* target_node, node_t** n
  * Used to store the states of the DFS search on the maze.
  */
 char**** init_visits(char**** visits, maze_t* maze);
-
+void uninit_visits(char**** visits, maze_t* maze);
 /*
  * Sets starting and target nodes to the appropriate positions of the maze
  * that contain the robots.

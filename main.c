@@ -41,7 +41,9 @@ int main(int argc, char** argv) {
 			return 0;
 		}
 		print_maze(maze);
+		uninit_visits(visits, maze);
 	}
-
+	uninit_maze(&maze[0]);
+	uninit_maze(&maze[1]);
 	return 0;
 }

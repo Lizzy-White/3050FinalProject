@@ -8,8 +8,8 @@ Alex Wilhelm
 
 ## Building
 Type 'make' to build to project.
-Run the following command, where <input_file> is the name of the file containing the maze and <r> is an integer.
-./maze_solver <input_file> <r>
+Run the following command, where 'input_file' is the name of the file containing the maze and 'r'is an integer.
+./maze_solver 'input_file' 'r'
 
 ## Expected Output
 For the R = 0 Case:

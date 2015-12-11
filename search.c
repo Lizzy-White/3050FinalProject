@@ -27,6 +27,10 @@ void a_star(maze_t* maze, node_t* starting_node, node_t* target_node, node_t** n
 				printf("\nROBOT 2:\nFinal path in RED\n");
 				print_maze(maze);
 				print_parents(parents, parent_size);
+				free(closed_ref[0]);
+				free(closed_ref[1]);
+				free(parents[0]);
+				free(parents[1]);
 				return;
 			}
 
@@ -86,6 +90,10 @@ void a_star(maze_t* maze, node_t* starting_node, node_t* target_node, node_t** n
 		}
 
 	}
+	free(closed_ref[0]);
+	free(closed_ref[1]);
+	free(parents[0]);
+	free(parents[1]);
 }
 
 
@@ -182,6 +190,20 @@ char**** init_visits(char**** visits, maze_t* maze) {
 		}
 	}
 	return visits;
+}
+
+void uninit_visits(char**** visits, maze_t* maze) {
+	int a, b, c;
+	for (a = 0; a < maze[0].num_rows; a++) {
+		for (b = 0; b < maze[0].num_cols; b++) {
+			for (c = 0; c < maze[0].num_rows; c++){
+				free(visits[a][b][c]);
+			}
+			free(visits[a][b]);
+		}
+		free(visits[a]);
+	}
+	free(visits);
 }
 
 void init_start_and_target_nodes(node_t* starting_node, node_t* target_node, robot_t* bots){
