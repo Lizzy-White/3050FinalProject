@@ -3,12 +3,16 @@ Maze Solver
 
 ## Team Members
 Andrea McGovern
+
 Lizzy White
+
 Alex Wilhelm
 
 ## Building
 Type 'make' to build to project.
+
 Run the following command, where 'input_file' is the name of the file containing the maze and 'r'is an integer.
+
 ./maze_solver 'input_file' 'r'
 
 ## Expected Output
@@ -20,4 +24,5 @@ For the R > 0 Case:
 
 ## Ideas
 A* Algorithm for finding the shortest path. This is only implemented for the R = 0 case.
+
 DFS exhaustive search to find a path to the end, taking into account the parameter R as an additional requirement for the recursive step.
